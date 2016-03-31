@@ -1,0 +1,6 @@
+statusCode : 200
+delay: 300
+headers:
+- 'Auth:auth'
+- 'key:value'
+body: '{result:{}}'

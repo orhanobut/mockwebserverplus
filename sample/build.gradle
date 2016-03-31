@@ -1,0 +1,78 @@
+repositories {
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion 23
+  buildToolsVersion "23.0.1"
+
+  defaultConfig {
+    applicationId "com.orhanobut.mockwebserverplus"
+    minSdkVersion 16
+    targetSdkVersion 23
+    versionCode 1
+    versionName "1.0"
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  task foo(group: 'fixtures') << {
+    print sourceSets.test.resources
+  }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_7
+    targetCompatibility JavaVersion.VERSION_1_7
+  }
+}
+
+task generateFixtures(group: 'fixtures') << {
+  def directory = projectDir.path + '/src/test/java'
+  new File(directory + '/fixtures').mkdir()
+  def path = directory + "/fixtures/Fixtures.java"
+
+  def builder = '' << ''
+  builder.append("package fixtures;\n\n")
+  builder.append("public class Fixtures {\n\n")
+  builder.append("  private Fixtures() {\n")
+  builder.append("    //no instance\n")
+  builder.append("  }\n\n")
+
+  def resources = android.sourceSets.test.resources.srcDirs.getAt(0)
+  if (resources.size() > 0) {
+    resources.eachDirMatch("fixtures") { dir ->
+      def fixturesFile = dir
+      fixturesFile.eachFile { file ->
+        def fileName = file.name.split('\\.')[0]
+        builder.append("  public static final String ")
+            .append(fileName.toUpperCase())
+            .append(" = ")
+            .append('\"')
+            .append(fileName)
+            .append('\";\n')
+      }
+    }
+  }
+  builder.append("}\n")
+
+  new File(path).write(builder.toString())
+}
+
+assembleDebug.dependsOn generateFixtures
+
+dependencies {
+  compile fileTree(dir: 'libs', include: ['*.jar'])
+  compile 'com.android.support:appcompat-v7:23.2.1'
+  testCompile 'junit:junit:4.12'
+  testCompile 'org.assertj:assertj-core:2.4.0'
+  testCompile 'org.mockito:mockito-core:1.9.5'
+  testCompile 'com.squareup.okhttp3:okhttp:3.2.0'
+
+  testCompile project(':mockwebserverplus')
+}
+

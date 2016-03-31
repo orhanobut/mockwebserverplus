@@ -1,6 +1,5 @@
 package com.orhanobut.mockwebserverplus;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -10,73 +9,178 @@ import fixtures.Fixtures;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.QueueDispatcher;
+import okhttp3.mockwebserver.RecordedRequest;
+import okhttp3.mockwebserver.SocketPolicy;
 
+import static com.orhanobut.mockwebserverplus.MockWebServerPlusTest.AssertFixture.assertFixture;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class MockWebServerPlusTest {
 
+  private static final String JSON_RESPONSE = "{\n" +
+      "  \"array\": [\n" +
+      "    1,\n" +
+      "    2,\n" +
+      "    3\n" +
+      "  ],\n" +
+      "  \"boolean\": true,\n" +
+      "  \"null\": null,\n" +
+      "  \"number\": 123,\n" +
+      "  \"object\": {\n" +
+      "    \"a\": \"b\",\n" +
+      "    \"c\": \"d\",\n" +
+      "    \"e\": \"f\"\n" +
+      "  },\n" +
+      "  \"string\": \"Hello World\"\n" +
+      "}";
+
   @Rule public MockWebServer mockWebServer = new MockWebServer();
 
-  MockWebServerPlus server;
-  OkHttpClient httpClient;
+  final MockWebServerPlus server = new MockWebServerPlus(mockWebServer);
+  final OkHttpClient httpClient = new OkHttpClient();
 
-  @Before public void setup() throws IOException {
-    server = new MockWebServerPlus(mockWebServer);
-    httpClient = new OkHttpClient();
+  @Test public void useDefaultMockWebServer() {
+    assertThat(new MockWebServerPlus().server()).isNotNull();
   }
 
-  @Test public void testUrl() {
+  @Test public void generateValidUrl() {
     assertThat(server.url("")).isNotNull();
   }
 
-  @Test public void testEnqueueSingleResponse() throws Exception {
+  @Test public void enqueueSingleResponse() throws Exception {
     server.enqueue(Fixtures.SIMPLE);
 
-    Request request = new Request.Builder()
-        .url(server.url("/"))
-        .get()
-        .build();
+    Response response = execute();
 
-    Response response = httpClient.newCall(request).execute();
-
-    new AssertFixture(response)
-        .body("{result:{}}")
+    assertFixture(response)
+        .body(JSON_RESPONSE)
         .statusCode(200)
         .header("Auth", "auth")
         .header("key", "value");
   }
 
-  @Test public void testEnqueueMultipleResponse() throws Exception {
+  @Test public void enqueueMultipleResponse() throws Exception {
     server.enqueue(Fixtures.SIMPLE, Fixtures.SIMPLE);
 
-    Request request = new Request.Builder()
-        .url(server.url("/"))
-        .get()
-        .build();
+    Response response = execute();
 
-    Response response = httpClient.newCall(request).execute();
-
-    new AssertFixture(response)
-        .body("{result:{}}")
+    assertFixture(response)
+        .body(JSON_RESPONSE)
         .statusCode(200)
         .header("Auth", "auth")
         .header("key", "value");
 
-    Response response2 = httpClient.newCall(request).execute();
+    Response response2 = execute();
 
-    new AssertFixture(response2)
-        .body("{result:{}}")
+    assertFixture(response2)
+        .body(JSON_RESPONSE)
         .statusCode(200)
         .header("Auth", "auth")
         .header("key", "value");
   }
 
-  private static class AssertFixture {
+  @Test public void enqueueWithoutHeaders() throws Exception {
+    server.enqueue(Fixtures.SIMPLE_NO_HEADERS);
+
+    Response response = execute();
+
+    assertFixture(response)
+        .body(JSON_RESPONSE)
+        .statusCode(200);
+  }
+
+  @Test public void enqueueWithoutBody() throws Exception {
+    server.enqueue(Fixtures.SIMPLE_NO_BODY);
+
+    Response response = execute();
+
+    assertFixture(response).statusCode(200);
+  }
+
+  @Test public void enqueueWithoutStatusCode() throws Exception {
+    server.enqueue(Fixtures.SIMPLE_NO_STATUS_CODE);
+
+    Response response = execute();
+
+    assertFixture(response)
+        .body(JSON_RESPONSE)
+        .statusCode(200);
+  }
+
+  @Test public void enqueueSocketPolicy() throws IOException {
+    server.enqueue(SocketPolicy.KEEP_OPEN);
+    QueueDispatcher dispatcher = new QueueDispatcher();
+    server.setDispatcher(dispatcher);
+
+    MockResponse mockResponse = dispatcher.peek();
+
+    assertThat(mockResponse.getSocketPolicy()).isEqualTo(SocketPolicy.KEEP_OPEN);
+  }
+
+  @Test public void interceptDispatch() throws InterruptedException, IOException {
+    Dispatcher dispatcher = spy(new QueueDispatcher());
+    server.setDispatcher(dispatcher);
+    server.enqueue(new MockResponse());
+
+    execute();
+
+    verify(dispatcher).dispatch(any(RecordedRequest.class));
+  }
+
+  @Test public void getRecordedRequest() throws IOException, InterruptedException {
+    server.enqueue(new MockResponse());
+
+    execute();
+
+    RecordedRequest recordedRequest = server.takeRequest();
+
+    assertThat(recordedRequest).isNotNull();
+  }
+
+  @Test public void getMockServerInstance() {
+    assertThat(server.server()).isEqualTo(mockWebServer);
+  }
+
+  // awesome solutions, isn't it? Would be great to find a more proper solution
+  @Test public void delayResponse() throws IOException {
+    server.enqueue(Fixtures.DELAYED_1000_MS);
+
+    long currentTime = System.currentTimeMillis();
+    execute();
+    long elapsedTime = System.currentTimeMillis();
+
+    assertThat(elapsedTime - currentTime).isGreaterThan(1000);
+  }
+
+  private Response execute() throws IOException {
+    return execute(server.url("/"));
+  }
+
+  private Response execute(String url) throws IOException {
+    Request request = new Request.Builder()
+        .url(server.url(url))
+        .get()
+        .build();
+
+    return httpClient.newCall(request).execute();
+  }
+
+  static class AssertFixture {
     private final Response response;
 
-    public AssertFixture(Response response) {
+    private AssertFixture(Response response) {
       this.response = response;
+    }
+
+    public static AssertFixture assertFixture(Response response) {
+      return new AssertFixture(response);
     }
 
     public AssertFixture body(String body) throws IOException {

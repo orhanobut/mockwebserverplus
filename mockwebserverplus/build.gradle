@@ -1,18 +1,35 @@
 apply plugin: 'java'
+apply plugin: 'nexus'
+apply plugin: 'checkstyle'
 
-task copyTestResources(type: Copy) {
+task checkstyle(type: Checkstyle) {
+  configFile = rootProject.file('checkstyle.xml')
+  source 'src'
+  include '**/*.java'
+  exclude '**/gen/**'
+
+  classpath = files()
+}
+
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
+task copyTestResources(type: Copy, group: 'fixtures') {
   from sourceSets.test.resources
   into sourceSets.test.output.classesDir
 }
 
-task generateFixtures(dependsOn: copyTestResources) << {
+task generateFixtures(dependsOn: copyTestResources, group: 'fixtures') << {
   def directory = projectDir.path + '/src/test/java'
   new File(directory + '/fixtures').mkdir()
   def path = directory + "/fixtures/Fixtures.java"
 
   def builder = '' << ''
   builder.append("package fixtures;\n\n")
-  builder.append("public class Fixtures {\n")
+  builder.append("public class Fixtures {\n\n")
+  builder.append("  private Fixtures() {\n")
+  builder.append("    //no instance\n")
+  builder.append("  }\n\n")
 
   def resources = sourceSets.test.resources.srcDirs.getAt(0)
   if (resources.size() > 0) {
@@ -38,10 +55,43 @@ compileTestJava.dependsOn generateFixtures
 
 dependencies {
   compile 'junit:junit:4.12'
-  compile 'com.squareup.okhttp3:mockwebserver:3.2.0'
-  compile 'org.yaml:snakeyaml:1.14'
+  compile('com.squareup.okhttp3:mockwebserver:3.2.0') {
+    exclude group: "junit"
+  }
+  compile('org.yaml:snakeyaml:1.14') {
+    transitive false
+  }
 
   testCompile 'org.assertj:assertj-core:2.4.0'
   testCompile "org.mockito:mockito-core:1.9.5"
   testCompile 'com.squareup.okhttp3:okhttp:3.2.0'
+}
+
+modifyPom {
+  project {
+    name POM_NAME
+    description POM_DESCRIPTION
+    url POM_URL
+
+    scm {
+      url POM_SCM_URL
+      connection POM_SCM_CONNECTION
+      developerConnection POM_SCM_DEV_CONNECTION
+    }
+
+    licenses {
+      license {
+        name POM_LICENCE_NAME
+        url POM_LICENCE_URL
+        Distribution POM_LICENCE_DIST
+      }
+    }
+
+    developers {
+      developer {
+        id POM_DEVELOPER_ID
+        name POM_DEVELOPER_NAME
+      }
+    }
+  }
 }

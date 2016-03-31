@@ -1,7 +1,9 @@
-package com.orhanobut.mockwebserverplus;
+package com.orhanobut.sample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.orhanobut.mockwebserverplus.R;
 
 public class MainActivity extends AppCompatActivity {
 

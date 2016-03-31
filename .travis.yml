@@ -1,0 +1,13 @@
+language: android
+
+android:
+  components:
+    - build-tools-23.0.1
+    - android-23
+    - tools
+
+notifications:
+  email: false
+
+script:
+  - ./gradlew mockwebserverplus:test mockwebserverplus:checkstyle

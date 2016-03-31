@@ -1,6 +1,5 @@
 package com.orhanobut.mockwebserverplus;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import fixtures.Fixtures;
@@ -10,10 +9,15 @@ import static org.assertj.core.api.Assertions.fail;
 
 public class FixtureTest {
 
-  Parser parser;
+  final Parser parser = new YamlParser();
 
-  @Before public void setup() {
-    parser = new YamlParser();
+  @Test public void parseWithoutParser() {
+    Fixture fixture = Fixture.parseFrom(Fixtures.SIMPLE_WITH_DELAY);
+
+    assertThat(fixture.statusCode).isEqualTo(200);
+    assertThat(fixture.delay).isEqualTo(300);
+    assertThat(fixture.body).isEqualTo("{result:{}}");
+    assertThat(fixture.headers).containsExactly("Auth:auth", "key:value");
   }
 
   @Test public void parseFixtureFromYaml() {

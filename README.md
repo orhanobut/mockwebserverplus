@@ -176,6 +176,12 @@ MockWebServerPlus.setDispatcher(Dispatcher dispatcher)  // any custom dispatcher
 MockWebServerPlus.enqueue(SocketPolicy socketPolicy)    // Useful for network errors, such as DISCONNECT etc
 ```
 
+### Get the fixture object
+You may want to handle the data inside fixture differently. You can use Fixture object which contains all information that resides in yaml file.
+```java
+Fixture fixture = Fixture.parseFrom(Fixtures.SIMPLE);
+```
+
 ### For non-android modules
 For non-android modules, you may need to add the following tasks to copy your resources into classes dir
 ```groovy

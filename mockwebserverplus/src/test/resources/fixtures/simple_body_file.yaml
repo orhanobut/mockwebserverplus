@@ -1,0 +1,6 @@
+statusCode : 200
+delay: 0
+headers:
+- 'Auth:auth'
+- 'key:value'
+body: 'body/simple_body.json'

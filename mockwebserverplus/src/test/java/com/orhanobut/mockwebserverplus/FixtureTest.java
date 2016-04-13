@@ -34,7 +34,7 @@ public class FixtureTest {
       Fixture.parseFrom("invalid_path", parser);
       fail("should fail");
     } catch (Exception e) {
-      assertThat(e).hasMessage("Invalid path: invalid_path");
+      assertThat(e).hasMessage("Invalid path: fixtures/invalid_path.yaml");
     }
 
     try {
@@ -43,5 +43,29 @@ public class FixtureTest {
     } catch (Exception e) {
       assertThat(e).hasMessage("File name should not be null");
     }
+  }
+
+  @Test public void parseFixtureWithBodyReference() {
+    Fixture fixture = Fixture.parseFrom(Fixtures.SIMPLE_BODY_FILE, parser);
+
+    assertThat(fixture.statusCode).isEqualTo(200);
+    assertThat(fixture.delay).isEqualTo(0);
+    assertThat(fixture.body).isEqualTo("{\n" +
+        "  \"array\": [\n" +
+        "    1,\n" +
+        "    2,\n" +
+        "    3\n" +
+        "  ],\n" +
+        "  \"boolean\": true,\n" +
+        "  \"null\": null,\n" +
+        "  \"number\": 123,\n" +
+        "  \"object\": {\n" +
+        "    \"a\": \"b\",\n" +
+        "    \"c\": \"d\",\n" +
+        "    \"e\": \"f\"\n" +
+        "  },\n" +
+        "  \"string\": \"Hello World\"\n" +
+        "}");
+    assertThat(fixture.headers).containsExactly("Auth:auth", "key:value");
   }
 }

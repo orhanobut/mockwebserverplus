@@ -1,3 +1,5 @@
+import groovy.io.FileType
+
 apply plugin: 'java'
 apply plugin: 'nexus'
 apply plugin: 'checkstyle'
@@ -11,8 +13,10 @@ task checkstyle(type: Checkstyle) {
   classpath = files()
 }
 
-targetCompatibility = JavaVersion.VERSION_1_7
-sourceCompatibility = JavaVersion.VERSION_1_7
+compileJava {
+  sourceCompatibility = JavaVersion.VERSION_1_7
+  targetCompatibility = JavaVersion.VERSION_1_7
+}
 
 task copyTestResources(type: Copy, group: 'fixtures') {
   from sourceSets.test.resources
@@ -35,14 +39,16 @@ task generateFixtures(dependsOn: copyTestResources, group: 'fixtures') << {
   if (resources.size() > 0) {
     resources.eachDirMatch("fixtures") { dir ->
       def fixturesFile = dir
-      fixturesFile.eachFile { file ->
-        def fileName = file.name.split('\\.')[0]
-        builder.append("  public static final String ")
-            .append(fileName.toUpperCase())
-            .append(" = ")
-            .append('\"')
-            .append(fileName)
-            .append('\";\n')
+      fixturesFile.eachFile(FileType.FILES) { file ->
+        if (file.name.endsWith(".yaml")) {
+          String fileName = file.name.split('\\.')[0]
+          builder.append("  public static final String ")
+              .append(fileName.toUpperCase())
+              .append(" = ")
+              .append('\"')
+              .append(fileName)
+              .append('\";\n')
+        }
       }
     }
   }

@@ -62,7 +62,9 @@ delay: 0               // delays the response
 headers:               // adds to the response
 - 'Auth:auth'
 - 'key:value'
-body: >                // can be any text, json, plain etc. Use > letter for scalar text
+body: 'common/body_file.json' // can be any path under /fixtures folder
+// or inline
+body: >                       // can be any text, json, plain etc. Use > letter for scalar text
     {
       "array": [
         1,
@@ -132,14 +134,16 @@ task generateFixtures(dependsOn: copyTestResources) << {
   if (resources.size() > 0) {
     resources.eachDirMatch("fixtures") { dir ->
       def fixturesFile = dir
-      fixturesFile.eachFile { file ->
-        def fileName = file.name.split('\\.')[0]
-        builder.append("  public static final String ")
-            .append(fileName.toUpperCase())
-            .append(" = ")
-            .append('\"')
-            .append(fileName)
-            .append('\";\n')
+      fixturesFile.eachFile(FileType.FILES) { file ->
+        if (file.name.endsWith(".yaml")) {
+          String fileName = file.name.split('\\.')[0]
+          builder.append("  public static final String ")
+              .append(fileName.toUpperCase())
+              .append(" = ")
+              .append('\"')
+              .append(fileName)
+              .append('\";\n')
+        }
       }
     }
   }

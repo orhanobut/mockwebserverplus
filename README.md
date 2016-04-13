@@ -167,7 +167,7 @@ repositories {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/"}
 }
 dependencies {
-    testCompile 'com.orhanobut:mockwebserverplus:0.8.1-SNAPSHOT'
+    testCompile 'com.orhanobut:mockwebserverplus:0.8.2-SNAPSHOT'
 }
 ```
 

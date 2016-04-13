@@ -7,4 +7,6 @@ public class Fixtures {
   }
 
   public static final String SIMPLE = "simple";
+  public static final String SIMPLE2 = "simple2";
+  public static final String SIMPLE_WITH_DELAY = "simple_with_delay";
 }

@@ -10,25 +10,25 @@ properties you need
 
 @Test public void uglyTest() {
   server.enqueue(new MockResponse()
-      .setStatusCode(200)
-      .setBody({
-                 "array": [
-                   1,
-                   2,
-                   3
-                 ],
-                 "boolean": true,
-                 "null": null,
-                 "number": 123,
-                 "object": {
-                   "a": "b",
-                   "c": "d",
-                   "e": "f"
-                 },
-                 "string": "Hello World"
-               })
-      .addHeader("HeaderKey:HeaderValue")
-      .responseDelay(3, SECONDS)
+    .setStatusCode(200)
+    .setBody({
+               "array": [
+                 1,
+                 2,
+                 3
+               ],
+               "boolean": true,
+               "null": null,
+               "number": 123,
+               "object": {
+                 "a": "b",
+                 "c": "d",
+                 "e": "f"
+               },
+               "string": "Hello World"
+             })
+    .addHeader("HeaderKey:HeaderValue")
+    .responseDelay(3, SECONDS)
   );
   
   // execute request
@@ -161,14 +161,9 @@ make it dependent for any task to make it automated. Whenever assembleDebug is e
 assembleDebug.dependsOn generateFixtures
 ```
 
-### Dependency
+### Download
 ```groovy
-repositories {
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots/"}
-}
-dependencies {
-    testCompile 'com.orhanobut:mockwebserverplus:0.8.2-SNAPSHOT'
-}
+testCompile 'com.orhanobut:mockwebserverplus:1.0.0'
 ```
 
 #### Other proxy methods
@@ -202,7 +197,7 @@ Also notice that accessing sourceSets should be without android.
 
 ### License
 <pre>
-Copyright 2016 Orhan Obut
+Copyright 2017 Orhan Obut
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -107,6 +107,21 @@ server.enqueue(Fixtures.FOO_SUCCESS);
 server.enqueue(Fixtures.FOO_SUCCESS, Fixtures.USER_REGISTER_SUCCESS);
 ```
 
+### Custom Dispatcher
+You may wish to use a custom dispatcher with the mock web server. 
+
+Fixtures can be used directly inside a Dispatcher:
+
+```
+ new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                return Fixture.parseFrom("simple).toMockResponse();
+            }
+        }
+```
+
+
 ### Generate Fixtures.java
 You can always use plain text to reference your fixtures.
 

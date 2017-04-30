@@ -7,13 +7,13 @@ repositories {
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 23
-  buildToolsVersion "23.0.1"
+  compileSdkVersion 25
+  buildToolsVersion "25.0.2"
 
   defaultConfig {
     applicationId "com.orhanobut.mockwebserverplus"
     minSdkVersion 16
-    targetSdkVersion 23
+    targetSdkVersion 25
     versionCode 1
     versionName "1.0"
   }
@@ -69,11 +69,11 @@ afterEvaluate {
 }
 
 dependencies {
-  compile 'com.android.support:appcompat-v7:23.2.1'
+  compile 'com.android.support:appcompat-v7:25.3.1'
   testCompile 'junit:junit:4.12'
   testCompile 'org.assertj:assertj-core:2.4.0'
   testCompile 'org.mockito:mockito-core:1.9.5'
-  testCompile 'com.squareup.okhttp3:okhttp:3.2.0'
+  testCompile 'com.squareup.okhttp3:okhttp:3.7.0'
 
   testCompile project(':mockwebserverplus')
 }

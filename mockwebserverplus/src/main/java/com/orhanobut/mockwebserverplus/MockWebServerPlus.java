@@ -6,7 +6,6 @@ import org.junit.runners.model.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -44,21 +43,7 @@ public class MockWebServerPlus implements TestRule {
     List<MockResponse> mockResponseList = new ArrayList<>();
     for (String path : paths) {
       Fixture fixture = Fixture.parseFrom(path, parser);
-      MockResponse mockResponse = new MockResponse();
-      if (fixture.statusCode != 0) {
-        mockResponse.setResponseCode(fixture.statusCode);
-      }
-      if (fixture.body != null) {
-        mockResponse.setBody(fixture.body);
-      }
-      if (fixture.delay != 0) {
-        mockWebServer.setDispatcher(new DelayedDispatcher(fixture.delay, TimeUnit.MILLISECONDS));
-      }
-      if (fixture.headers != null) {
-        for (String header : fixture.headers) {
-          mockResponse.addHeader(header);
-        }
-      }
+      MockResponse mockResponse = fixture.toMockResponse();
       mockWebServer.enqueue(mockResponse);
       mockResponseList.add(mockResponse);
     }

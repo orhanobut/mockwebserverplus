@@ -63,10 +63,7 @@ task generateFixtures(group: 'fixtures') << {
   new File(path).write(builder.toString())
 }
 
-afterEvaluate {
-  generateDebugSources.dependsOn generateFixtures
-  generateReleaseSources.dependsOn generateFixtures
-}
+preBuild.dependsOn generateFixtures
 
 dependencies {
   compile 'com.android.support:appcompat-v7:25.3.1'

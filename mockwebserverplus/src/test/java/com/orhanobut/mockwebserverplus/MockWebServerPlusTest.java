@@ -148,17 +148,6 @@ public class MockWebServerPlusTest {
     assertThat(server.server()).isEqualTo(mockWebServer);
   }
 
-  // awesome solutions, isn't it? Would be great to find a more proper solution
-  @Test public void delayResponse() throws IOException {
-    server.enqueue(Fixtures.DELAYED_1000_MS);
-
-    long currentTime = System.currentTimeMillis();
-    execute();
-    long elapsedTime = System.currentTimeMillis();
-
-    assertThat(elapsedTime - currentTime).isGreaterThan(1000);
-  }
-
   private Response execute() throws IOException {
     return execute(server.url("/"));
   }
@@ -179,21 +168,21 @@ public class MockWebServerPlusTest {
       this.response = response;
     }
 
-    public static AssertFixture assertFixture(Response response) {
+    static AssertFixture assertFixture(Response response) {
       return new AssertFixture(response);
     }
 
-    public AssertFixture body(String body) throws IOException {
+    AssertFixture body(String body) throws IOException {
       assertThat(response.body().string()).isEqualTo(body);
       return this;
     }
 
-    public AssertFixture statusCode(int statusCode) {
+    AssertFixture statusCode(int statusCode) {
       assertThat(response.code()).isEqualTo(statusCode);
       return this;
     }
 
-    public AssertFixture header(String key, String value) {
+    AssertFixture header(String key, String value) {
       assertThat(response.header(key)).isEqualTo(value);
       return this;
     }

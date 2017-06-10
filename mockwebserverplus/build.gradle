@@ -12,6 +12,9 @@ task checkstyle(type: Checkstyle) {
 
   classpath = files()
 }
+checkstyle {
+  toolVersion = '7.2'
+}
 
 compileJava {
   sourceCompatibility = JavaVersion.VERSION_1_7

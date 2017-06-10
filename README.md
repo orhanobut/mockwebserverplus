@@ -205,6 +205,9 @@ task copyTestResources(type: Copy) {
 }
 ```
 
+### How it works
+https://github.com/orhanobut/mockwebserverplus/blob/master/art/how_it_works.png
+
 Also notice that accessing sourceSets should be without android.
 
 #### Credits

@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.mockwebserver.MockResponse;
 
 /**
  * A value container that holds all information about the fixture file.
@@ -73,5 +76,24 @@ public class Fixture {
     reader.close();
 
     return out.toString();
+  }
+
+  public MockResponse toMockResponse() {
+    MockResponse mockResponse = new MockResponse();
+    if (this.statusCode != 0) {
+      mockResponse.setResponseCode(this.statusCode);
+    }
+    if (this.body != null) {
+      mockResponse.setBody(this.body);
+    }
+    if (this.delay != 0) {
+      mockResponse.setBodyDelay(this.delay, TimeUnit.MILLISECONDS);
+    }
+    if (this.headers != null) {
+      for (String header : this.headers) {
+        mockResponse.addHeader(header);
+      }
+    }
+    return mockResponse;
   }
 }

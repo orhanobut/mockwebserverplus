@@ -113,14 +113,12 @@ You may wish to use a custom dispatcher with the mock web server.
 Fixtures can be used directly inside a Dispatcher:
 
 ```
- new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                return Fixture.parseFrom("simple).toMockResponse();
-            }
-        }
+new Dispatcher() {
+  @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+    return Fixture.parseFrom("simple).toMockResponse();
+  }
+}
 ```
-
 
 ### Generate Fixtures.java
 You can always use plain text to reference your fixtures.
@@ -170,15 +168,18 @@ task generateFixtures(dependsOn: copyTestResources) << {
 ```
 
 Above solution will generate Fixtures.java when you execute it manually. But you might forget to execute it, you can
-make it dependent for any task to make it automated. Whenever assembleDebug is executed, it will also execute this task
+make it dependent for any task to make it automated. Whenever preBuild is executed, it will also execute this task
 
 ```groovy
-assembleDebug.dependsOn generateFixtures
+preBuild.dependsOn generateFixtures
 ```
 
-### Download
+### Install
 ```groovy
-testCompile 'com.orhanobut:mockwebserverplus:1.0.0'
+testCompile 'com.orhanobut:mockwebserverplus:2.0.0'
+
+// This is optional, but in order to be up-to-date with OkHttp changes, you can use the latest version
+testCompile 'com.squareup.okhttp3:mockwebserver:3.7.0'  
 ```
 
 #### Other proxy methods
@@ -191,7 +192,6 @@ MockWebServerPlus.enqueue(SocketPolicy socketPolicy)    // Useful for network er
 ```
 
 ### Get the fixture object
-You may want to handle the data inside fixture differently. You can use Fixture object which contains all information that resides in yaml file.
 ```java
 Fixture fixture = Fixture.parseFrom(Fixtures.SIMPLE);
 ```
